@@ -8,6 +8,8 @@
 
 #include "action.h"
 
+#define asset_ico(ico) (std::string("/assets/icons/") + ico + ".png")
+
 </%pre>
 <%thread scope="global">
 std::map<std::string, Action> actions;
@@ -80,24 +82,28 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
  </head>
  <body>
   <table>
-   <tr><th/><th><$ d.name() $></th><th/></tr>
+   <tr>
+    <th><a href="?action=goto&target=<$ tnt::urlEscape(home) $>"><img src="<$ asset_ico("home") $>"/></a></th>
+    <th><$ d.name() $></th>
+    <th><a href="?action=goto&target=<$ tnt::urlEscape(cwd) $>"><img src="<$ asset_ico("refresh") $>"/></a></th>
+   </tr>
 % if(cwd != home) {
    <tr>
-    <td><img src="/assets/icons/up.png"/></td>
-    <td><a href="?action=goto&target=<$ tnt::urlEscape(d.updir()) $>">..</a></td>
+    <td><img src="<$ asset_ico("up") $>"/></td>
+    <td><a href="?action=goto&target=..">..</a></td>
     <td/>
    </tr>
 % }
 % for(auto i : content) {
    <tr>
 % if(i.isDirectory()) {
-    <td><img src="/assets/icons/folder.png"/></td>
+    <td><img src="<$ asset_ico("folder") $>"/></td>
     <td>
 %    if(!default_dir.empty()) {
      <a href="?action=<$ default_dir $>&target=<$ tnt::urlEscape(i.path()) $>">
 %    }
 % } else {
-    <td><img src="/assets/icons/file.png"/></td>
+    <td><img src="<$ asset_ico("file") $>"/></td>
     <td>
 %    if(!default_file.empty()) {
      <a href="?action=<$ default_file $>&target=<$ tnt::urlEscape(i.path()) $>">
@@ -114,7 +120,7 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
 %    if((jm.for_dir  &&  i.isDirectory() && (jm.show_default || j.first != default_dir)) ||
 %       (jm.for_file && !i.isDirectory() && (jm.show_default || j.first != default_file))) {
      <a href="?action=<$ j.first $>&target=<$ tnt::urlEscape(i.path()) $>">
-      <img src="/assets/icons/<$ jm.icon $>.png"/>
+      <img src="<$ asset_ico(jm.icon) $>"/>
      </a>
 %    }
 % }
