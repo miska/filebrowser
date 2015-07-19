@@ -1,0 +1,126 @@
+<%pre>
+#include <unistd.h>
+#include <vector>
+#include <algorithm>
+#include <cxxtools/directory.h>
+#include <cxxtools/fileinfo.h>
+#include <tnt/urlescostream.h>
+
+#include "action.h"
+
+</%pre>
+<%thread scope="global">
+std::map<std::string, Action> actions;
+std::string default_dir  = "goto";
+std::string default_file = "";
+bool init = true;
+</%thread>
+<%args>
+std::string target;
+std::string action;
+</%args>
+<%session>
+std::string home;
+std::string cwd;
+</%session>
+<%cpp>
+if(home.empty()) {
+    char* buff = get_current_dir_name();
+    home = buff;
+    free(buff);
+    buff = NULL;
+}
+if(cwd.compare(0, home.length(), home) != 0) {
+    cwd = home;
+}
+if(init) {
+    Action tmp;
+    tmp.meta = Action_Meta({ "goto", "none", true, false, false});
+    tmp.action = [&cwd](std::string t) {
+                       if(t != "..") {
+                           cwd = t;
+                       } else {
+                           cwd = cxxtools::FileInfo(cwd).dirName();
+                           cwd.pop_back();
+                       }
+                   };
+    actions.emplace("goto", tmp);
+    tmp.meta = Action_Meta({ "delete", "trash", false, true, true});
+    tmp.action = [](std::string t) { 
+                       unlink(t.c_str());
+                   };
+    actions.emplace("delete", tmp);
+    init = false;
+}
+
+if(!target.empty()) {
+    auto it = actions.find(action);
+    if(it != actions.end()) {
+        it->second.action(target);
+    }
+}
+if(cwd.compare(0, home.length(), home) != 0) {
+    cwd = home;
+}
+std::vector <cxxtools::FileInfo> content;
+cxxtools::Directory d(cwd);
+for(auto i = d.begin(true); i != d.end(); ++i)
+    content.push_back(cxxtools::FileInfo(i));
+std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
+    if(i.isDirectory() && !j.isDirectory())
+        return true;
+    if(!i.isDirectory() && j.isDirectory())
+        return false;
+    return i.name() < j.name();
+});
+</%cpp>
+<html>
+ <head>
+  <title>Filebrowser</title>
+ </head>
+ <body>
+  <table>
+   <tr><th/><th><$ d.name() $></th><th/></tr>
+% if(cwd != home) {
+   <tr>
+    <td><img src="/assets/icons/up.png"/></td>
+    <td><a href="?action=goto&target=<$ tnt::urlEscape(d.updir()) $>">..</a></td>
+    <td/>
+   </tr>
+% }
+% for(auto i : content) {
+   <tr>
+% if(i.isDirectory()) {
+    <td><img src="/assets/icons/folder.png"/></td>
+    <td>
+%    if(!default_dir.empty()) {
+     <a href="?action=<$ default_dir $>&target=<$ tnt::urlEscape(i.path()) $>">
+%    }
+% } else {
+    <td><img src="/assets/icons/file.png"/></td>
+    <td>
+%    if(!default_file.empty()) {
+     <a href="?action=<$ default_file $>&target=<$ tnt::urlEscape(i.path()) $>">
+%    }
+% }
+      <$ i.name() $>
+% if((i.isDirectory() && !default_dir.empty()) || (!i.isDirectory() && !default_file.empty())) {
+     </a>
+% }
+    </td>
+    <td>
+% for(auto j : actions) {
+%    auto jm = j.second.meta;
+%    if((jm.for_dir  &&  i.isDirectory() && (jm.show_default || j.first != default_dir)) ||
+%       (jm.for_file && !i.isDirectory() && (jm.show_default || j.first != default_file))) {
+     <a href="?action=<$ j.first $>&target=<$ tnt::urlEscape(i.path()) $>">
+      <img src="/assets/icons/<$ jm.icon $>.png"/>
+     </a>
+%    }
+% }
+    </td>
+   </tr>
+% }
+  </table>
+ </body>
+</html>
