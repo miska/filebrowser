@@ -6,23 +6,23 @@ test: all
 filebrowser.so: filebrowser.o folder.o file.o up.o trash.o home.o refresh.o
 	${CXX} -o $@ $^ ${LDFLAGS}
 
-folder.cpp: assets/open-iconic/png/folder-2x.png
-	${ECPPC} -m image/png -n folder -b -o $@ $<
+folder.cpp: assets/open-iconic/svg/folder.svg
+	${ECPPC} -m image/svg -n folder -b -o $@ $<
 
-file.cpp: assets/open-iconic/png/file-2x.png
-	${ECPPC} -m image/png -n file -b -o $@ $<
+file.cpp: assets/open-iconic/svg/file.svg
+	${ECPPC} -m image/svg -n file -b -o $@ $<
 
-up.cpp: assets/open-iconic/png/action-undo-2x.png
-	${ECPPC} -m image/png -n up -b -o $@ $<
+up.cpp: assets/open-iconic/svg/action-undo.svg
+	${ECPPC} -m image/svg -n up -b -o $@ $<
 
-trash.cpp: assets/open-iconic/png/trash-2x.png
-	${ECPPC} -m image/png -n trash -b -o $@ $<
+trash.cpp: assets/open-iconic/svg/trash.svg
+	${ECPPC} -m image/svg -n trash -b -o $@ $<
 
-home.cpp: assets/open-iconic/png/home-2x.png
-	${ECPPC} -m image/png -n home -b -o $@ $<
+home.cpp: assets/open-iconic/svg/home.svg
+	${ECPPC} -m image/svg -n home -b -o $@ $<
 
-refresh.cpp: assets/open-iconic/png/loop-circular-2x.png
-	${ECPPC} -m image/png -n refresh -b -o $@ $<
+refresh.cpp: assets/open-iconic/svg/loop-circular.svg
+	${ECPPC} -m image/svg -n refresh -b -o $@ $<
 
 .SUFFIXES: .ecpp .gif .jpg .css .js .cpp
 ECPPC=/usr/bin/ecppc

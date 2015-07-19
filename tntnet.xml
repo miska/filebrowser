@@ -14,7 +14,7 @@
     <!-- map /comp.* or /comp to comp@filebrowser -->
     <mapping>
       <target>$1@filebrowser</target>
-      <url>^/assets/icons/(.*).png</url>
+      <url>^/assets/icons/(.*).svg</url>
     </mapping>
   </mappings>
 

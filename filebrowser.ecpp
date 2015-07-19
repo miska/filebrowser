@@ -8,7 +8,7 @@
 
 #include "action.h"
 
-#define asset_ico(ico) (std::string("/assets/icons/") + ico + ".png")
+#define asset_ico(ico) (std::string("/assets/icons/") + ico + ".svg")
 
 </%pre>
 <%thread scope="global">
