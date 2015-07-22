@@ -3,26 +3,31 @@ all: filebrowser.so
 test: all
 	${TNTNET} tntnet.xml
 
-filebrowser.so: filebrowser.o folder.o file.o up.o trash.o home.o refresh.o
+filebrowser.so: main.o filebrowser.o folder.o file.o up.o trash.o home.o refresh.o jquery.o jquery-map.o
 	${CXX} -o $@ $^ ${LDFLAGS}
 
 folder.cpp: assets/open-iconic/svg/folder.svg
-	${ECPPC} -m image/svg -n folder -b -o $@ $<
+	${ECPPC} -v -n folder -b -o $@ $<
 
 file.cpp: assets/open-iconic/svg/file.svg
-	${ECPPC} -m image/svg -n file -b -o $@ $<
+	${ECPPC} -v -n file -b -o $@ $<
 
 up.cpp: assets/open-iconic/svg/action-undo.svg
-	${ECPPC} -m image/svg -n up -b -o $@ $<
+	${ECPPC} -v -n up -b -o $@ $<
 
 trash.cpp: assets/open-iconic/svg/trash.svg
-	${ECPPC} -m image/svg -n trash -b -o $@ $<
+	${ECPPC} -v -n trash -b -o $@ $<
 
 home.cpp: assets/open-iconic/svg/home.svg
-	${ECPPC} -m image/svg -n home -b -o $@ $<
+	${ECPPC} -v -n home -b -o $@ $<
 
 refresh.cpp: assets/open-iconic/svg/loop-circular.svg
-	${ECPPC} -m image/svg -n refresh -b -o $@ $<
+	${ECPPC} -v -n refresh -b -o $@ $<
+
+jquery.cpp: assets/js/jquery.min.js
+	${ECPPC} -m application/javascript -n jquery -b -o $@ $<
+jquery-map.cpp: assets/js/jquery.min.map
+	${ECPPC} -m application/json -n jquery-map -b -o $@ $<
 
 .SUFFIXES: .ecpp .gif .jpg .css .js .cpp
 ECPPC=/usr/bin/ecppc

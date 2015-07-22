@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <cxxtools/directory.h>
 #include <cxxtools/fileinfo.h>
+#include <cxxtools/file.h>
 #include <tnt/urlescostream.h>
 
 #include "action.h"
 
 #define asset_ico(ico) (std::string("/assets/icons/") + ico + ".svg")
+#define api_url "/api/"
 
 </%pre>
 <%thread scope="global">
@@ -38,18 +40,22 @@ if(cwd.compare(0, home.length(), home) != 0) {
 if(init) {
     Action tmp;
     tmp.meta = Action_Meta({ "goto", "none", true, false, false});
-    tmp.action = [&cwd](std::string t) {
+    tmp.action = [&cwd](std::string t) -> std::string {
                        if(t != "..") {
                            cwd = t;
                        } else {
                            cwd = cxxtools::FileInfo(cwd).dirName();
                            cwd.pop_back();
                        }
+                       return "{ \"reload\": true }";
                    };
     actions.emplace("goto", tmp);
     tmp.meta = Action_Meta({ "delete", "trash", false, true, true});
-    tmp.action = [](std::string t) { 
-                       unlink(t.c_str());
+    tmp.action = [](std::string t) {
+                       auto f = cxxtools::File(t);
+                       std::string ret = f.baseName();
+                       f.remove();
+                       return "{ \"reload\": true, \"notice\": \"File '" + ret + "' deleted...\" }";
                    };
     actions.emplace("delete", tmp);
     init = false;
@@ -58,12 +64,16 @@ if(init) {
 if(!target.empty()) {
     auto it = actions.find(action);
     if(it != actions.end()) {
-        it->second.action(target);
+</%cpp>
+<$$     it->second.action(target) $>
+<%cpp>
+        return HTTP_OK;
     }
 }
 if(cwd.compare(0, home.length(), home) != 0) {
     cwd = home;
 }
+if(action == "render") {
 std::vector <cxxtools::FileInfo> content;
 cxxtools::Directory d(cwd);
 for(auto i = d.begin(true); i != d.end(); ++i)
@@ -76,37 +86,35 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
     return i.name() < j.name();
 });
 </%cpp>
-<html>
- <head>
-  <title>Filebrowser</title>
- </head>
- <body>
   <table>
    <tr>
-    <th><a href="?action=goto&target=<$ tnt::urlEscape(home) $>"><img src="<$ asset_ico("home") $>"/></a></th>
+    <th><a onClick="filebrowser_api_call('goto', '<$ tnt::urlEscape(home) $>');" href="#"><img class="filebrowser_icon" src="<$ asset_ico("home") $>"/></a></th>
     <th><$ d.name() $></th>
-    <th><a href="?action=goto&target=<$ tnt::urlEscape(cwd) $>"><img src="<$ asset_ico("refresh") $>"/></a></th>
+    <th><a onClick="filebrowser_reload()" href="#"><img class="filebrowser_icon" src="<$ asset_ico("refresh") $>"/></a></th>
    </tr>
+% int j = 0;
 % if(cwd != home) {
-   <tr>
-    <td><img src="<$ asset_ico("up") $>"/></td>
-    <td><a href="?action=goto&target=..">..</a></td>
+%     j = 1;
+   <tr class="odd">
+    <td><img class="filebrowser_icon" src="<$ asset_ico("up") $>"/></td>
+    <td><a  onClick="filebrowser_api_call('goto', '..');" href="#">..</a></td>
     <td/>
    </tr>
 % }
 % for(auto i : content) {
-   <tr>
+%  j = (j+1)%2;
+   <tr class="<$ j == 1 ? "odd" : "even" $>">
 % if(i.isDirectory()) {
-    <td><img src="<$ asset_ico("folder") $>"/></td>
+    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("folder") $>"/></td>
     <td>
 %    if(!default_dir.empty()) {
-     <a href="?action=<$ default_dir $>&target=<$ tnt::urlEscape(i.path()) $>">
+     <a onClick="filebrowser_api_call('<$ default_dir $>', '<$ tnt::urlEscape(i.path()) $>');" href="#">
 %    }
 % } else {
-    <td><img src="<$ asset_ico("file") $>"/></td>
+    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("file") $>"/></td>
     <td>
 %    if(!default_file.empty()) {
-     <a href="?action=<$ default_file $>&target=<$ tnt::urlEscape(i.path()) $>">
+     <a onClick="filebrowser_api_call('<$ default_file $>', '<$ tnt::urlEscape(i.path()) $>');" href="#">
 %    }
 % }
       <$ i.name() $>
@@ -114,13 +122,13 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
      </a>
 % }
     </td>
-    <td>
+    <td class="ico">
 % for(auto j : actions) {
 %    auto jm = j.second.meta;
 %    if((jm.for_dir  &&  i.isDirectory() && (jm.show_default || j.first != default_dir)) ||
 %       (jm.for_file && !i.isDirectory() && (jm.show_default || j.first != default_file))) {
-     <a href="?action=<$ j.first $>&target=<$ tnt::urlEscape(i.path()) $>">
-      <img src="<$ asset_ico(jm.icon) $>"/>
+     <a onClick="filebrowser_api_call('<$ j.first $>', '<$ tnt::urlEscape(i.path()) $>');" href="#">
+      <img class="filebrowser_icon" src="<$ asset_ico(jm.icon) $>"/>
      </a>
 %    }
 % }
@@ -128,5 +136,63 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
    </tr>
 % }
   </table>
- </body>
-</html>
+ </div>
+</div>
+% } else {
+  Error: Incorect action
+% }
+<#
+
+
+
+#>
+<%def include>
+<script src="/assets/js/jquery.min.js"></script>
+<script language="JavaScript"><!--
+function filebrowser_reload() {
+    $('#filebrowser_browser').load("<$ api_url $>?action=render");
+}
+
+function filebrowser_api_call(action, target) {
+    $.getJSON("<$ api_url $>?action=" + action + "&target=" + target,
+      function(result) {
+       if(result.notice) {
+        $('#filebrowser_notice').text(result.notice);
+       }
+       if(result.reload) {
+        filebrowser_reload();
+       }
+      }
+     )
+}
+
+window.onload = function() {
+    filebrowser_reload();
+};
+
+setInterval(function(){ filebrowser_reload(); }, 5000);
+
+--></script>
+
+<style type="text/css">
+.filebrowser { background: #050505; color: #dddddd; }
+.filebrowser a { color: #eeeeee; text-decoration: none; }
+.filebrowser a:hover { background: #000000; color: #ffffff; outline: dotted #ffffff; }
+.filebrowser { width: 100%; padding: 5px; }
+.filebrowser .filebrowser_notice { width: 100%; padding: 5px; }
+.filebrowser .filebrowser_browser { width: 100%; padding: 5px; }
+.filebrowser table { width: 100%; }
+.filebrowser .filebrowser_icon { width: 1em; height: 1em; }
+.filebrowser td { padding-left: 5px; padding-right: 5px; }
+.filebrowser td.ico { text-align: center; }
+.filebrowser tr.odd { background: #101010; }
+.filebrowser tr.even  { background: #181818; }
+.filebrowser tr:hover  { background: #353535; }
+.filebrowser th  { background: #252525; color: #ffffff; }
+</style>
+
+<div class="filebrowser">
+ <div id="filebrowser_notice" class="notice"></div>
+ <div id="filebrowser_browser" class="browser"></div>
+</div>
+</%def>

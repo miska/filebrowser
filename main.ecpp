@@ -1,0 +1,20 @@
+<%pre>
+#include "action.h"
+</%pre>
+<%thread scope="global">
+std::map<std::string, Action> actions;
+</%thread>
+<%args>
+action;
+target;
+</%args>
+<html lang="en">
+ <head>
+  <title>Filebrowser</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="UTF-8" />
+ </head>
+ <body>
+<& "filebrowser.include" &>
+ </body>
+</html>

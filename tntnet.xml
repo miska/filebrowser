@@ -8,10 +8,21 @@
   <mappings>
     <!-- map / to filebrowser@filebrowser -->
     <mapping>
-      <target>filebrowser@filebrowser</target>
+      <target>main@filebrowser</target>
       <url>^/$</url>
     </mapping>
-    <!-- map /comp.* or /comp to comp@filebrowser -->
+    <mapping>
+      <target>filebrowser@filebrowser</target>
+      <url>^/api/$</url>
+    </mapping>
+    <mapping>
+      <target>jquery@filebrowser</target>
+      <url>^/assets/js/jquery(.min)?.js</url>
+    </mapping>
+    <mapping>
+      <target>jquery-map@filebrowser</target>
+      <url>^/assets/js/jquery.min.map</url>
+    </mapping>
     <mapping>
       <target>$1@filebrowser</target>
       <url>^/assets/icons/(.*).svg</url>

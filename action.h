@@ -13,6 +13,6 @@ struct Action_Meta {
 
 struct Action {
     Action_Meta meta;
-    std::function<void(std::string)> action;
+    std::function<std::string(std::string)> action;
 };
 
