@@ -96,7 +96,7 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
 % if(cwd != home) {
 %     j = 1;
    <tr class="odd">
-    <td><img class="filebrowser_icon" src="<$ asset_ico("up") $>"/></td>
+    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("up") $>"/></td>
     <td><a  onClick="filebrowser_api_call('goto', '..');" href="#">..</a></td>
     <td/>
    </tr>
@@ -170,25 +170,26 @@ window.onload = function() {
     filebrowser_reload();
 };
 
-setInterval(function(){ filebrowser_reload(); }, 5000);
+// setInterval(function(){ filebrowser_reload(); }, 5000);
 
 --></script>
 
 <style type="text/css">
 .filebrowser { background: #050505; color: #dddddd; }
-.filebrowser a { color: #eeeeee; text-decoration: none; }
-.filebrowser a:hover { background: #000000; color: #ffffff; outline: dotted #ffffff; }
+.filebrowser td a { color: #ffffff; text-decoration: none; border-bottom: 1px dotted #fff; }
+.filebrowser td a:hover { background: #000000; color: #ffffff; outline: dotted #ffffff; }
 .filebrowser { width: 100%; padding: 5px; }
 .filebrowser .filebrowser_notice { width: 100%; padding: 5px; }
 .filebrowser .filebrowser_browser { width: 100%; padding: 5px; }
 .filebrowser table { width: 100%; }
 .filebrowser .filebrowser_icon { width: 1em; height: 1em; }
-.filebrowser td { padding-left: 5px; padding-right: 5px; }
+.filebrowser td { color: #dddddd; padding-left: 5px; padding-right: 5px; }
+.filebrowser img { fill: #dddddd; stroke: #dddddd; }
 .filebrowser td.ico { text-align: center; }
 .filebrowser tr.odd { background: #101010; }
 .filebrowser tr.even  { background: #181818; }
 .filebrowser tr:hover  { background: #353535; }
-.filebrowser th  { background: #252525; color: #ffffff; }
+.filebrowser th  { padding-top: 5px; padding-bottom: 5px; background: #252525; color: #ffffff; }
 </style>
 
 <div class="filebrowser">

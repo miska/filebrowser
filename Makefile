@@ -3,11 +3,23 @@ all: filebrowser.so
 test: all
 	${TNTNET} tntnet.xml
 
-filebrowser.so: main.o filebrowser.o folder.o file.o up.o trash.o home.o refresh.o jquery.o jquery-map.o
+filebrowser.so: main.o icons.o filebrowser.o jquery.o jquery-map.o
 	${CXX} -o $@ $^ ${LDFLAGS}
 
-folder.cpp: assets/open-iconic/svg/folder.svg
-	${ECPPC} -v -n folder -b -o $@ $<
+up.svg: assets/open-iconic/svg/action-undo.svg
+	cp $< $@
+refresh.svg: assets/open-iconic/svg/loop-circular.svg
+	cp $< $@
+
+icons.cpp: assets/open-iconic/svg/folder.svg \
+           assets/open-iconic/svg/file.svg \
+		   up.svg \
+           assets/open-iconic/svg/file.svg \
+		   assets/open-iconic/svg/trash.svg \
+		   assets/open-iconic/svg/home.svg \
+		   refresh.svg
+	${ECPPC} -v -n icons -bb -o $@ $^
+	sed -i 's|"\(.*\.svg\)",|"/assets/icons/\1",|' $@
 
 file.cpp: assets/open-iconic/svg/file.svg
 	${ECPPC} -v -n file -b -o $@ $<

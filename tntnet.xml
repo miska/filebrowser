@@ -24,8 +24,8 @@
       <url>^/assets/js/jquery.min.map</url>
     </mapping>
     <mapping>
-      <target>$1@filebrowser</target>
-      <url>^/assets/icons/(.*).svg</url>
+      <target>icons@filebrowser</target>
+      <url>^/assets/icons/.*.svg</url>
     </mapping>
   </mappings>
 
