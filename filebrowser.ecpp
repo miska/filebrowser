@@ -96,7 +96,7 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
 % if(cwd != home) {
 %     j = 1;
    <tr class="odd">
-    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("up") $>"/></td>
+    <td class="ico filetype"><img class="filebrowser_icon" src="<$ asset_ico("up") $>"/></td>
     <td><a  onClick="filebrowser_api_call('goto', '..');" href="#">..</a></td>
     <td/>
    </tr>
@@ -105,13 +105,13 @@ std::sort(content.begin(), content.end(), [](auto i, auto j) -> bool {
 %  j = (j+1)%2;
    <tr class="<$ j == 1 ? "odd" : "even" $>">
 % if(i.isDirectory()) {
-    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("folder") $>"/></td>
+    <td class="ico filetype"><img class="filebrowser_icon" src="<$ asset_ico("folder") $>"/></td>
     <td>
 %    if(!default_dir.empty()) {
      <a onClick="filebrowser_api_call('<$ default_dir $>', '<$ tnt::urlEscape(i.path()) $>');" href="#">
 %    }
 % } else {
-    <td class="ico"><img class="filebrowser_icon" src="<$ asset_ico("file") $>"/></td>
+    <td class="ico filetype"><img class="filebrowser_icon" src="<$ asset_ico("file") $>"/></td>
     <td>
 %    if(!default_file.empty()) {
      <a onClick="filebrowser_api_call('<$ default_file $>', '<$ tnt::urlEscape(i.path()) $>');" href="#">
@@ -186,6 +186,7 @@ window.onload = function() {
 .filebrowser td { color: #dddddd; padding-left: 5px; padding-right: 5px; }
 .filebrowser img { fill: #dddddd; stroke: #dddddd; }
 .filebrowser td.ico { text-align: center; }
+.filebrowser td.filetype { width: 3em; }
 .filebrowser tr.odd { background: #101010; }
 .filebrowser tr.even  { background: #181818; }
 .filebrowser tr:hover  { background: #353535; }
